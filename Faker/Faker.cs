@@ -63,5 +63,11 @@ namespace Faker
             return result;
         }
 
+        private DateTime GetRandomDate()
+        {
+            DateTime date = minDateTime;
+            date = date.AddSeconds(r.Next(maxDateSeconds));
+            return date;
+        }
     }
 }

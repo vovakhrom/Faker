@@ -54,5 +54,14 @@ namespace Faker
                 }
             }
         }
+        
+        private string GetRandomString()
+        {
+            string result = "";
+            for (int i = 0; i < stringLength; i++)
+                result += (char)r.Next(minChar, maxChar);
+            return result;
+        }
+
     }
 }

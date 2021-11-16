@@ -173,6 +173,13 @@ namespace Faker
             return (pi.GetValue(o) == null) || pi.GetValue(o).Equals(GetDefaultValue(pi.PropertyType));
         }
 
+        private static object GetDefaultValue(Type t)
+        {
+            if (t.IsValueType)
+                return Activator.CreateInstance(t);
+            else
+                return null;
+        }
 
     }
 }

@@ -134,6 +134,45 @@ namespace Faker
                 return Activator.CreateInstance(type);
             }
         }
+        
+        private void FillFields(object obj, Type type)
+        {
+            FieldInfo[] fi = type.GetFields();
+            foreach (var field in fi)
+            {
+                if (IsFilledField(field, obj))
+                {
+                    field.SetValue(obj, (new Faker()).Create(field.FieldType));
+                }
+            }
+        }
+
+        private bool IsFilledField(FieldInfo fi, object o)
+        {
+            if (fi.IsInitOnly)
+                return false;
+            return (fi.GetValue(o) == null) || fi.GetValue(o).Equals(GetDefaultValue(fi.FieldType));
+        }
+
+        private void FillProperties(object o, Type type)
+        {
+            PropertyInfo[] pi = type.GetProperties();
+            foreach (var property in pi)
+            {
+                if (IsFilledProperty(property, o))
+                {
+                    property.SetValue(o, (new Faker()).Create(property.PropertyType));
+                }
+            }
+        }
+
+        private bool IsFilledProperty(PropertyInfo pi, object o)
+        {
+            if (!pi.CanRead || !pi.CanWrite)
+                return false;
+            return (pi.GetValue(o) == null) || pi.GetValue(o).Equals(GetDefaultValue(pi.PropertyType));
+        }
+
 
     }
 }

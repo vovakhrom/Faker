@@ -69,5 +69,14 @@ namespace Faker
             date = date.AddSeconds(r.Next(maxDateSeconds));
             return date;
         }
+        
+        private List<object> GetRandomList(Type elementType)
+        {
+            List<object> result = new List<object>();
+            IFaker faker = new Faker();
+            for (int i = 0; i < listCount; i++)
+                result.Add(faker.Create(elementType));
+            return result;
+        }
     }
 }

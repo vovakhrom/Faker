@@ -20,5 +20,39 @@ namespace Faker
         public Faker()
         {
         }
+        
+        public object Create(Type type)
+        {
+            //return type.BaseType;
+            switch(type.Name)
+            {
+                case "Int32":
+                {
+                    return r.Next();
+                }
+                case "Double":
+                case "Single":
+                {
+                    return r.NextDouble();
+                }
+                case "String":
+                {
+                    return GetRandomString();
+                }
+                case "DateTime":
+                {
+                    return GetRandomDate();
+                }
+                case "List`1":
+                {
+                    return GetRandomList(type.GetGenericArguments().Single());
+                } break;
+
+                default:
+                {
+                    return CreateRandomObject(type);
+                }
+            }
+        }
     }
 }

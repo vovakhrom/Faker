@@ -1,185 +1,252 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
+using FakerLib.Interfaces;
+using FakerLib.Generators;
+using System.Reflection;
 
-namespace Faker
+
+namespace FakerLib
 {
-    class Faker: IFaker
+    public class Faker : IFaker
     {
-        private Random r = new Random();
+        private readonly List<Type> circularReferencesEncounter;
 
-        private const int stringLength = 100;
-        private const char minChar = '0';
-        private const int maxChar = 'z';
-        private DateTime minDateTime = new DateTime(1970, 1, 1);
-        private const int maxDateSeconds = 60 * 365 * 24 * 60 * 60;
-        private const int listCount = 10;
+        private Dictionary<Type, IGenerator> generators;
 
         public Faker()
         {
+            generators = new Dictionary<Type, IGenerator>
+            {
+                { typeof(bool), new BoolGenerator()},
+                { typeof(char), new CharGenerator()},
+                { typeof(double), new DoubleGenerator()},
+                { typeof(int), new IntGenerator()},
+                { typeof(string), new StringGenerator()},
+            };
+            PluginLoader loader = new PluginLoader(generators);
+            loader.LoadPluginGeneratorsFromFiles();
+            Console.WriteLine(generators.Count);
+            circularReferencesEncounter = new List<Type>();
         }
-        
+
+        public T Create<T>()
+        {
+            return (T)Create(typeof(T));
+        }
+
         public object Create(Type type)
         {
-            //return type.BaseType;
-            switch(type.Name)
-            {
-                case "Int32":
-                {
-                    return r.Next();
-                }
-                case "Double":
-                case "Single":
-                {
-                    return r.NextDouble();
-                }
-                case "String":
-                {
-                    return GetRandomString();
-                }
-                case "DateTime":
-                {
-                    return GetRandomDate();
-                }
-                case "List`1":
-                {
-                    return GetRandomList(type.GetGenericArguments().Single());
-                } break;
+            object instance;
 
-                default:
-                {
-                    return CreateRandomObject(type);
-                }
-            }
-        }
-        
-        private string GetRandomString()
-        {
-            string result = "";
-            for (int i = 0; i < stringLength; i++)
-                result += (char)r.Next(minChar, maxChar);
-            return result;
+            if (TryGenerateAbstract(type, out instance))
+                return instance;
+
+            if (TryGenerateKnown(type, out instance))
+                return instance;
+
+            if (TryGenerateEnum(type, out instance))
+                return instance;
+
+            if (TryGenerateArray(type, out instance))
+                return instance;
+
+            if (TryList(type, out instance))
+                return instance;
+
+            if (TryGenerateCls(type, out instance))
+                return instance;
+
+            return default;
         }
 
-        private DateTime GetRandomDate()
+        private bool TryGenerateAbstract(Type type, out object instance)
         {
-            DateTime date = minDateTime;
-            date = date.AddSeconds(r.Next(maxDateSeconds));
-            return date;
-        }
-        
-        private List<object> GetRandomList(Type elementType)
-        {
-            List<object> result = new List<object>();
-            IFaker faker = new Faker();
-            for (int i = 0; i < listCount; i++)
-                result.Add(faker.Create(elementType));
-            return result;
-        }
-        
-        private object CreateRandomObject(Type type)
-        {
-            ConstructorInfo[] constructors = type.GetConstructors();
-            if (constructors.Length != 0)
-            {
-                while (true)
-                {
-                    int num = 0;
-                    for (int i = 1; i < constructors.Length; i++)
-                        if (constructors[i] != null)
-                        {
-                            if ((constructors[i] == null) || 
-                                (constructors[i].GetParameters().Length > 
-                                 constructors[num].GetParameters().Length))
-                            {
-                                num = i;
-                            }
-                        }
+            instance = default;
 
-                    if (constructors[num] == null) break;
-
-                    ParameterInfo[] paramInfo = constructors[num].GetParameters();
-                    object[] param = new object[paramInfo.Length];
-
-
-                    for (int i = 0; i < param.Length; ++i)
-                    {
-                        Type t = paramInfo[i].ParameterType;
-                        param[i] = (new Faker()).Create(t);
-                    }
-
-                    object result;
-                    try
-                    {
-                        result = Activator.CreateInstance(type, param);
-                        FillFields(result, type);
-                        FillProperties(result, type);
-                    }
-                    catch
-                    { 
-                        result = null; 
-                    }
-
-                    if (result != null)
-                        return result;
-
-                    constructors[num] = null;
-                }
-                return null;
-            }
-            else
-            {
-                return Activator.CreateInstance(type);
-            }
-        }
-        
-        private void FillFields(object obj, Type type)
-        {
-            FieldInfo[] fi = type.GetFields();
-            foreach (var field in fi)
-            {
-                if (IsFilledField(field, obj))
-                {
-                    field.SetValue(obj, (new Faker()).Create(field.FieldType));
-                }
-            }
-        }
-
-        private bool IsFilledField(FieldInfo fi, object o)
-        {
-            if (fi.IsInitOnly)
+            if (!type.IsAbstract)
                 return false;
-            return (fi.GetValue(o) == null) || fi.GetValue(o).Equals(GetDefaultValue(fi.FieldType));
+
+            return true;
         }
 
-        private void FillProperties(object o, Type type)
+        private bool TryGenerateArray(Type type, out object instance)
         {
-            PropertyInfo[] pi = type.GetProperties();
-            foreach (var property in pi)
+            instance = null;
+
+            if (!type.IsArray)
+                return false;
+
+            instance = (new ArrayGenerator(this, type)).Create();
+
+            return true;
+        }
+
+        private bool TryGenerateKnown(Type type, out object instance)
+        {
+            instance = null;
+            if (generators.TryGetValue(type, out IGenerator generator))
             {
-                if (IsFilledProperty(property, o))
+                instance = generator.Create();
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryGenerateEnum(Type type, out object instance)
+        {
+            instance = null;
+
+            if (!type.IsEnum)
+                return false;
+
+            Array values = type.GetEnumValues();
+            Random random = new Random();
+
+            instance = values.GetValue(random.Next(0, values.Length));
+
+            return true;
+        }
+
+        private bool TryList(Type type, out object instance)
+        {
+            instance = null;
+            if (!type.IsGenericType)
+                return false;
+
+            if (!(type.GetGenericTypeDefinition() == typeof(List<>)))
+                return false;
+
+            var innerTypes = type.GetGenericArguments();
+            Type gType = innerTypes[0];
+            //Console.WriteLine(gType.Name);
+            int count = new Random().Next(1, 20);
+            instance = Activator.CreateInstance(type);
+            object[] arr = new object[1];
+            for (int i = 0; i < count; ++i)
+            {
+                arr[0] = Create(gType);
+                type.GetMethod("Add").Invoke(instance, arr);
+            }
+
+            return true;
+        }
+
+
+        private bool TryGenerateCls(Type type, out object instance)
+        {
+            instance = null;
+
+            if (!type.IsClass && !type.IsValueType)
+                return false;
+
+            if (circularReferencesEncounter.Contains(type))
+            {
+                instance = default;
+                return true;
+            }
+
+            circularReferencesEncounter.Add(type);
+
+            if (TryConstruct(type, out instance))
+            {
+                GenerateFillProps(instance, type);
+                GenerateFillFields(instance, type);
+
+                circularReferencesEncounter.Remove(type);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryConstruct(Type type, out object instance)
+        {
+            instance = null;
+
+            if (TryGetMaxParamsConstructor(type, out ConstructorInfo ctn))
+            {
+                var prms = GenerateConstructorParams(ctn);
+
+                instance = ctn.Invoke(prms);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryGetMaxParamsConstructor(Type type, out ConstructorInfo ctn)
+        {
+            ctn = null;
+
+            var ctns = type.GetConstructors();
+
+            if (ctns.Length == 0)
+                return false;
+
+            foreach (var locCtn in ctns)
+            {
+                if (locCtn.IsPublic &&
+                    (ctn == null || locCtn.GetParameters().Length > ctn.GetParameters().Length))
                 {
-                    property.SetValue(o, (new Faker()).Create(property.PropertyType));
+                    ctn = locCtn;
                 }
+            }
+
+            if (ctn == null)
+                return false;
+
+            return true;
+        }
+
+        private void GenerateFillProps(object instance, Type type)
+        {
+            var props = type.GetProperties();
+
+            foreach (var prop in props)
+            {
+                if (!prop.CanWrite)
+                    continue;
+
+                if (prop.GetSetMethod() == null)
+                    continue;
+
+                prop.SetValue(instance, Create(prop.PropertyType));
             }
         }
 
-        private bool IsFilledProperty(PropertyInfo pi, object o)
+        private void GenerateFillFields(object instance, Type type)
         {
-            if (!pi.CanRead || !pi.CanWrite)
-                return false;
-            return (pi.GetValue(o) == null) || pi.GetValue(o).Equals(GetDefaultValue(pi.PropertyType));
+            var fields = type.GetFields();
+
+            foreach (var field in fields)
+            {
+                if (!field.IsPublic)
+                    continue;
+
+                field.SetValue(instance, Create(field.FieldType));
+            }
         }
 
-        private static object GetDefaultValue(Type t)
+        private object[] GenerateConstructorParams(ConstructorInfo constructor)
         {
-            if (t.IsValueType)
-                return Activator.CreateInstance(t);
-            else
-                return null;
-        }
+            var prms = constructor.GetParameters();
 
+            object[] generated = new object[prms.Length];
+
+            for (int i = 0; i < prms.Length; i++)
+            {
+                var p = prms[i];
+
+                generated[i] = Create(p.ParameterType);
+            }
+
+            return generated;
+        }
     }
 }

@@ -1,0 +1,21 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="C:\Users\lilil\.dotnet\packs\Microsoft.NETCore.App.Ref\5.0.0\ref\net5.0\System.ComponentModel.TypeConverter.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=438ddad1_002Debe8_002D4321_002Da496_002Dded659e35b8f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PluginsTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.PluginsTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.UserFieldsTest&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d4821025_002D819e_002D407a_002Da302_002D97d29cce39ad/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="UserFieldsTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.UserFieldsTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.GeneratorsTest.StringGeneratorTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.GeneratorsTest.IntGeneratorTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.GeneratorsTest.DoubleGeneratorTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.GeneratorsTest.LongGeneratorTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.PluginsTest.PluginLoadTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::95F6481B-C052-4D8F-B904-30239E5E01F2::net5.0::UnitTest.GeneratorsTest.CharGeneratorTest&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

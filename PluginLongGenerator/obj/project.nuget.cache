@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "Y0cC1yvomu+HyQGSDFniAJhpOnoTVeoMwPekIA7yLAQn55cM+Pcrqi+pku36NV2Lnnqo+htxU9BJt8X8RFdQhg==",
+  "success": true,
+  "projectFilePath": "D:\\Спп\\Faker\\PluginLongGenerator\\PluginLongGenerator.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lilil\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\lilil\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\lilil\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\lilil\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\lilil\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.12\\microsoft.netcore.app.host.win-x64.5.0.12.nupkg.sha512"
+  ],
+  "logs": []
+}
